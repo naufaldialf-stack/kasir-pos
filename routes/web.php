@@ -17,3 +17,6 @@ Route::post('/pos', [POSController::class, 'store'])->name('pos.store');
 // Route Master Data
 Route::resource('categories', CategoryController::class);
 Route::resource('products', ProductController::class);
+
+Route::get('/pos/history', [POSController::class, 'history'])->name('pos.history');
+Route::get('/pos/print/{id}', [POSController::class, 'printInvoice'])->name('pos.print');

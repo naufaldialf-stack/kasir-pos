@@ -1,52 +1,63 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kelola Kategori - Kasir POS</title>
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-</head>
-<body class="bg-gray-100 p-8">
-    <div class="max-w-4xl mx-auto bg-white p-6 rounded-lg shadow">
-        <h1 class="text-2xl font-bold mb-4">Daftar Kategori</h1>
+@extends('layouts.app')
 
-        <!-- Form Tambah Kategori -->
-        <form action="{{ route('categories.store') }}" method="POST" class="flex gap-2 mb-6">
+@section('title', 'Kelola Kategori')
+@section('page_title', 'Kelola Kategori Produk')
+
+@section('content')
+<div class="max-w-5xl mx-auto space-y-6">
+
+    <!-- Card Input Kategori -->
+    <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+        <h3 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+            <i class="fa-solid fa-plus-circle text-blue-600"></i> Tambah Kategori Baru
+        </h3>
+        <form action="{{ route('categories.store') }}" method="POST" class="flex gap-3">
             @csrf
-            <input type="text" name="name" placeholder="Nama Kategori Baru" required 
-                   class="border border-gray-300 rounded px-4 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500">
-            <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700">Simpan</button>
+            <input type="text" name="name" placeholder="Contoh: Makanan, Minuman, Snack" required 
+                   class="bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition text-sm">
+            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-xl transition shadow-lg shadow-blue-500/20 whitespace-nowrap flex items-center gap-2 text-sm">
+                <i class="fa-solid fa-save"></i> Simpan
+            </button>
         </form>
+    </div>
 
-        <!-- Tabel Daftar Kategori -->
-        <table class="w-full text-left border-collapse border border-gray-200">
+    <!-- Tabel Kategori -->
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+        <div class="p-6 border-b border-slate-100 flex justify-between items-center">
+            <h3 class="text-lg font-bold text-slate-800">Daftar Kategori Terdaftar</h3>
+            <span class="bg-blue-50 text-blue-700 text-xs font-bold px-3 py-1 rounded-full">Total: {{ count($categories) }} Kategori</span>
+        </div>
+        <table class="w-full text-left border-collapse">
             <thead>
-                <tr class="bg-gray-50 border-b">
-                    <th class="p-3 border">No</th>
-                    <th class="p-3 border">Nama Kategori</th>
-                    <th class="p-3 border">Aksi</th>
+                <tr class="bg-slate-50 text-slate-500 text-xs font-semibold uppercase tracking-wider border-b border-slate-100">
+                    <th class="p-4 pl-6">No</th>
+                    <th class="p-4">Nama Kategori</th>
+                    <th class="p-4 pr-6 text-right">Aksi</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody class="divide-y divide-slate-100 text-sm">
                 @forelse($categories as $index => $category)
-                    <tr class="border-b">
-                        <td class="p-3 border">{{ $index + 1 }}</td>
-                        <td class="p-3 border">{{ $category->name }}</td>
-                        <td class="p-3 border">
-                            <form action="{{ route('categories.destroy', $category->id) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus?')">
+                    <tr class="hover:bg-slate-50 transition">
+                        <td class="p-4 pl-6 font-semibold text-slate-400">{{ $index + 1 }}</td>
+                        <td class="p-4 font-bold text-slate-800">{{ $category->name }}</td>
+                        <td class="p-4 pr-6 text-right">
+                            <form action="{{ route('categories.destroy', $category->id) }}" method="POST" onsubmit="return confirm('Hapus kategori ini?')">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600">Hapus</button>
+                                <button type="submit" class="bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 ml-auto">
+                                    <i class="fa-solid fa-trash"></i> Hapus
+                                </button>
                             </form>
                         </td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="3" class="p-4 text-center text-gray-500">Belum ada kategori. Silakan tambahkan!</td>
+                        <td colspan="3" class="p-8 text-center text-slate-400">Belum ada kategori terdaftar. Silakan tambahkan di atas.</td>
                     </tr>
                 @endforelse
             </tbody>
         </table>
     </div>
-</body>
-</html>
+
+</div>
+@endsection

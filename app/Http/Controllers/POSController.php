@@ -19,11 +19,16 @@ class POSController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'cart' => 'required|array',
+            'cart' => 'required|string',
             'pay_amount' => 'required|numeric',
         ]);
 
         $cart = json_decode($request->cart, true);
+
+        if (!$cart || !is_array($cart) || count($cart) === 0) {
+            return back()->with('error', 'Keranjang belanja kosong!');
+        }
+
         $totalAmount = 0;
 
         foreach ($cart as $item) {
@@ -52,9 +57,23 @@ class POSController extends Controller
 
             // Kurangi stok produk
             $product = Product::find($item['id']);
-            $product->decrement('stock', $item['qty']);
+            if ($product) {
+                $product->decrement('stock', $item['qty']);
+            }
         }
 
         return redirect()->route('pos.index')->with('success', 'Transaksi berhasil! Kembalian: Rp ' . number_format($transaction->change_amount, 0, ',', '.'));
+    }
+
+    public function history()
+    {
+        $transactions = Transaction::with('details.product')->latest()->get();
+        return view('pos.history', compact('transactions'));
+    }
+
+    public function printInvoice($id)
+    {
+        $transaction = Transaction::with('details.product')->findOrFail($id);
+        return view('pos.print', compact('transaction'));
     }
 }
