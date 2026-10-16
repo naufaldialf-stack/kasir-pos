@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 
 class Product extends Model
+
 {
     protected $guarded = [];
 
@@ -12,4 +13,8 @@ class Product extends Model
     {
         return $this->belongsTo(Category::class);
     }
+    public function stockMovements()
+{
+    return $this->hasMany(StockMovement::class);
+}
 }

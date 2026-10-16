@@ -4,116 +4,97 @@
 @section('page_title', 'Kasir Penjualan Direct')
 
 @section('content')
-<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-    
-    <!-- Area Katalog Produk -->
-    <div class="lg:col-span-2 space-y-6">
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+    <!-- Kolom Kiri: Katalog Produk -->
+    <div class="lg:col-span-2 space-y-4">
         
-        @if(session('success'))
-            <div class="bg-emerald-50 border border-emerald-200 text-emerald-800 p-4 rounded-2xl flex items-center justify-between shadow-sm">
-                <div class="flex items-center gap-3">
-                    <i class="fa-solid fa-circle-check text-xl text-emerald-600"></i>
-                    <span class="font-bold text-sm">{{ session('success') }}</span>
-                </div>
-            </div>
-        @endif
-
         @if(session('error'))
-            <div class="bg-rose-50 border border-rose-200 text-rose-800 p-4 rounded-2xl flex items-center gap-3 shadow-sm">
-                <i class="fa-solid fa-circle-exclamation text-xl text-rose-600"></i>
-                <span class="font-bold text-sm">{{ session('error') }}</span>
+            <div class="bg-rose-50 border border-rose-200 text-rose-700 p-4 rounded-2xl flex items-center gap-3">
+                <i class="fa-solid fa-triangle-exclamation text-xl"></i>
+                <span class="text-sm font-semibold">{{ session('error') }}</span>
             </div>
         @endif
 
-        <!-- List Grid Produk -->
-        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-lg font-bold text-slate-800">Pilih Produk</h3>
-                <span class="text-xs text-slate-400 font-medium">Klik produk untuk menambah ke keranjang</span>
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-base font-bold text-slate-800">Pilih Produk</h3>
+                <span class="text-xs text-slate-400">Klik produk untuk menambah ke keranjang</span>
             </div>
 
-            <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-                @if(count($products) > 0)
-                    @for($i = 0; $i < count($products);$i++)
-                        @php
-                            $imgUrl = $products[$i]->image ? asset('storage/' . $products[$i]->image) : null;
-                        @endphp
-                        <div onclick="addToCart({{ $products[$i]->id }}, '{{ $products[$i]->name }}', {{ $products[$i]->price }}, {{ $products[$i]->stock }})" 
-                             class="group border border-slate-200 hover:border-blue-500 bg-slate-50 hover:bg-blue-50/30 rounded-2xl overflow-hidden cursor-pointer transition-all duration-200 shadow-sm hover:shadow-md flex flex-col justify-between">
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                <?php if (count($products) === 0): ?>
+                    <div class="col-span-full py-12 text-center text-slate-400 text-sm">
+                        Belum ada data produk aktif atau stok habis.
+                    </div>
+                <?php else: ?>
+                    <?php foreach ($products as$product): ?>
+                        <div onclick="addToCart(<?= $product->id ?>, '<?= addslashes($product->name) ?>', <?= $product->price ?>, <?= $product->stock ?>)"
+                             class="group bg-white rounded-2xl border border-slate-200 p-3 hover:border-blue-500 hover:shadow-md transition cursor-pointer flex flex-col justify-between">
                             
-                            <!-- Foto Produk -->
-                            <div class="h-32 w-full bg-slate-200 relative overflow-hidden">
-                                @if($imgUrl)
-                                    <img src="{{ $imgUrl }}" alt="{{ $products[$i]->name }}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
-                                @else
-                                    <div class="w-full h-full flex items-center justify-center text-slate-400 bg-slate-100">
-                                        <i class="fa-solid fa-image text-3xl"></i>
-                                    </div>
-                                @endif
-                                <span class="absolute top-2 right-2 bg-slate-900/70 backdrop-blur-sm text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
-                                    Stok: {{ $products[$i]->stock }}
+                            <div class="relative w-full h-32 bg-slate-100 rounded-xl overflow-hidden mb-3 flex items-center justify-center">
+                                <?php if ($product->image): ?>
+                                    <img src="<?= asset('storage/' . $product->image) ?>" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+                                <?php else: ?>
+                                    <i class="fa-regular fa-image text-3xl text-slate-300"></i>
+                                <?php endif; ?>
+                                <span class="absolute top-2 right-2 bg-slate-900/70 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+                                    Stok: <?= $product->stock ?>
                                 </span>
                             </div>
 
-                            <!-- Info Produk -->
-                            <div class="p-3.5 flex flex-col justify-between flex-1">
-                                <div class="font-bold text-slate-800 text-sm group-hover:text-blue-600 transition line-clamp-1 mb-2">
-                                    {{ $products[$i]->name }}
-                                </div>
-                                <div class="flex justify-between items-center border-t border-slate-200/60 pt-2.5">
-                                    <span class="text-[11px] font-medium text-slate-400">Harga</span>
-                                    <span class="text-blue-600 font-extrabold text-sm">Rp {{ number_format($products[$i]->price, 0, ',', '.') }}</span>
+                            <div>
+                                <h4 class="font-bold text-slate-800 text-sm truncate"><?= e($product->name) ?></h4>
+                                <div class="flex items-center justify-between mt-2">
+                                    <span class="text-xs text-slate-400">Harga</span>
+                                    <span class="font-extrabold text-blue-600 text-sm">Rp <?= number_format($product->price, 0, ',', '.') ?></span>
                                 </div>
                             </div>
-
                         </div>
-                    @endfor
-                @else
-                    <div class="col-span-3 text-center py-12 text-slate-400">
-                        <i class="fa-solid fa-box-open text-4xl mb-3 text-slate-300"></i>
-                        <p class="font-medium">Belum ada produk siap jual.</p>
-                    </div>
-                @endif
+                    <?php endforeach; ?>
+                <?php endif; ?>
             </div>
         </div>
     </div>
 
-    <!-- Area Keranjang Belanja -->
-    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col justify-between h-full min-h-[500px]">
+    <!-- Kolom Kanan: Keranjang Belanja & Checkout -->
+    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between h-fit sticky top-4">
         <div>
-            <div class="flex justify-between items-center pb-4 mb-4 border-b border-slate-100">
-                <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
-                    <i class="fa-solid fa-cart-shopping text-blue-600"></i> Keranjang Belanja
-                </h3>
-                <button type="button" onclick="clearCart()" class="text-xs font-bold text-rose-500 hover:text-rose-700 transition">Reset</button>
-            </div>
-
-            <div id="cart-items" class="space-y-3 max-h-80 overflow-y-auto pr-1">
-                <p class="text-slate-400 text-center py-8 text-sm">Keranjang masih kosong</p>
-            </div>
-        </div>
-
-        <div class="border-t border-slate-100 pt-6 mt-6 space-y-4">
-            <div class="bg-slate-50 p-4 rounded-xl flex justify-between items-center border border-slate-100">
-                <span class="text-sm font-semibold text-slate-500">Total Tagihan:</span>
-                <span id="total-price" class="text-2xl font-black text-blue-600">Rp 0</span>
-            </div>
-
-            <form action="{{ route('pos.store') }}" method="POST" onsubmit="prepareSubmit(event)">
-                @csrf
-                <input type="hidden" name="cart" id="cart-input">
-                
-                <div class="mb-4">
-                    <label class="block text-xs font-bold text-slate-600 mb-1">Jumlah Pembayaran (Rp)</label>
-                    <input type="number" id="pay-amount" name="pay_amount" required placeholder="0" 
-                           class="bg-slate-50 border border-slate-300 rounded-xl w-full p-3 font-bold text-lg text-slate-800 focus:ring-2 focus:ring-blue-500 focus:bg-white focus:outline-none transition">
+            <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-cart-shopping text-blue-600"></i>
+                    <h3 class="font-bold text-slate-800">Keranjang Belanja</h3>
                 </div>
+                <button type="button" onclick="clearCart()" class="text-xs font-semibold text-rose-500 hover:underline">Reset</button>
+            </div>
 
-                <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3.5 rounded-xl font-bold transition shadow-lg shadow-emerald-600/20 flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-paper-plane"></i> Process Payment
-                </button>
-            </form>
+            <!-- List Item Keranjang -->
+            <div id="cartItems" class="divide-y divide-slate-100 max-h-80 overflow-y-auto py-2">
+                <p id="emptyCartText" class="text-center py-8 text-xs text-slate-400">Keranjang masih kosong</p>
+            </div>
         </div>
+
+        <!-- Form Pembayaran -->
+        <form action="<?= route('pos.store') ?>" method="POST" onsubmit="return validateCheckout()" class="pt-4 border-t border-slate-100 space-y-4">
+            <?= csrf_field() ?>
+            <input type="hidden" name="cart" id="cartInput">
+
+            <div class="flex justify-between items-baseline">
+                <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Tagihan:</span>
+                <span id="totalText" class="text-2xl font-black text-blue-600">Rp 0</span>
+            </div>
+
+            <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">Jumlah Pembayaran (Rp)</label>
+                <input type="number" name="pay_amount" id="payAmountInput" min="0" placeholder="0" required
+                       class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+
+            <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl transition flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/20 text-sm">
+                <i class="fa-solid fa-paper-plane"></i>
+                <span>Process Payment</span>
+            </button>
+        </form>
     </div>
 
 </div>
@@ -121,22 +102,48 @@
 <script>
     let cart = [];
 
-    function addToCart(id, name, price, maxStock) {
-        let item = cart.find(i => i.id === id);
+    function addToCart(id, name, price, stock) {
+        let item = cart.find(p => p.id === id);
+
         if (item) {
-            if (item.qty < maxStock) {
+            if (item.qty < stock) {
                 item.qty++;
             } else {
-                alert('Stok barang terbatas!');
+                alert('Jumlah melebihi stok yang tersedia (' + stock + ')!');
+                return;
             }
         } else {
-            cart.push({ id, name, price, qty: 1, maxStock });
+            if (stock < 1) {
+                alert('Stok produk ini habis!');
+                return;
+            }
+            cart.push({ id: id, name: name, price: price, stock: stock, qty: 1 });
         }
+
         renderCart();
     }
 
-    function removeFromCart(id) {
-        cart = cart.filter(i => i.id !== id);
+    function updateQty(id, change) {
+        let item = cart.find(p => p.id === id);
+        if (!item) return;
+
+        item.qty += change;
+
+        if (item.qty > item.stock) {
+            item.qty = item.stock;
+            alert('Jumlah mencapai batas stok maksimum!');
+        }
+
+        if (item.qty <= 0) {
+            removeItem(id);
+            return;
+        }
+
+        renderCart();
+    }
+
+    function removeItem(id) {
+        cart = cart.filter(p => p.id !== id);
         renderCart();
     }
 
@@ -146,46 +153,65 @@
     }
 
     function renderCart() {
-        let container = document.getElementById('cart-items');
-        let totalEl = document.getElementById('total-price');
-        
+        const cartContainer = document.getElementById('cartItems');
+        const cartInput = document.getElementById('cartInput');
+        const totalText = document.getElementById('totalText');
+
         if (cart.length === 0) {
-            container.innerHTML = '<p class="text-slate-400 text-center py-8 text-sm">Keranjang masih kosong</p>';
-            totalEl.innerText = 'Rp 0';
+            cartContainer.innerHTML = '<p class="text-center py-8 text-xs text-slate-400">Keranjang masih kosong</p>';
+            totalText.innerText = 'Rp 0';
+            cartInput.value = '';
             return;
         }
 
         let html = '';
         let total = 0;
 
-        cart.forEach(item => {
-            let subtotal = item.price * item.qty;
+        for (let i = 0; i < cart.length; i++) {
+            const item = cart[i];
+            const subtotal = item.price * item.qty;
             total += subtotal;
+
             html += `
-                <div class="flex justify-between items-center bg-slate-50 p-3 rounded-xl border border-slate-100">
-                    <div>
-                        <div class="font-bold text-slate-800 text-sm">${item.name}</div>
-                        <div class="text-xs text-slate-400 font-medium">${item.qty} x Rp ${item.price.toLocaleString('id-ID')}</div>
+                <div class="py-3 flex items-center justify-between gap-3">
+                    <div class="min-w-0 flex-1">
+                        <h5 class="text-xs font-bold text-slate-800 truncate">${item.name}</h5>
+                        <p class="text-[11px] text-slate-400 mt-0.5">Rp ${item.price.toLocaleString('id-ID')} / item</p>
+                        
+                        <div class="flex items-center gap-2 mt-2">
+                            <button type="button" onclick="updateQty(${item.id}, -1)" 
+                                    class="w-6 h-6 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center text-xs font-bold transition">
+                                -
+                            </button>
+                            <span class="text-xs font-bold text-slate-800 w-6 text-center">${item.qty}</span>
+                            <button type="button" onclick="updateQty(${item.id}, 1)" 
+                                    class="w-6 h-6 rounded-lg bg-blue-50 hover:bg-blue-600 hover:text-white text-blue-600 flex items-center justify-center text-xs font-bold transition">
+                                +
+                            </button>
+                        </div>
                     </div>
-                    <div class="flex items-center gap-3">
-                        <span class="font-bold text-sm text-slate-700">Rp ${subtotal.toLocaleString('id-ID')}</span>
-                        <button type="button" onclick="removeFromCart(${item.id})" class="text-rose-500 hover:bg-rose-100 w-6 h-6 rounded-full flex items-center justify-center text-xs transition">✕</button>
+
+                    <div class="text-right shrink-0">
+                        <span class="block text-xs font-extrabold text-slate-800 mb-1">Rp ${subtotal.toLocaleString('id-ID')}</span>
+                        <button type="button" onclick="removeItem(${item.id})" class="text-[11px] text-rose-500 hover:text-rose-700">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
                     </div>
                 </div>
             `;
-        });
+        }
 
-        container.innerHTML = html;
-        totalEl.innerText = 'Rp ' + total.toLocaleString('id-ID');
+        cartContainer.innerHTML = html;
+        totalText.innerText = 'Rp ' + total.toLocaleString('id-ID');
+        cartInput.value = JSON.stringify(cart);
     }
 
-    function prepareSubmit(e) {
+    function validateCheckout() {
         if (cart.length === 0) {
-            e.preventDefault();
             alert('Keranjang belanja masih kosong!');
-            return;
+            return false;
         }
-        document.getElementById('cart-input').value = JSON.stringify(cart);
+        return true;
     }
 </script>
 @endsection
